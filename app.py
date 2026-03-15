@@ -33,6 +33,9 @@ if "selected_difficulty" not in st.session_state:
 if "secret" not in st.session_state or st.session_state.selected_difficulty != difficulty:
     st.session_state.secret = random.randint(low, high)
     st.session_state.selected_difficulty = difficulty
+    st.session_state.attempts = 0
+    st.session_state.status = "playing"
+    st.session_state.history = []
 
 if "attempts" not in st.session_state:
     st.session_state.attempts = 0
@@ -76,6 +79,8 @@ with col3:
 if new_game:
     st.session_state.attempts = 0
     st.session_state.secret = random.randint(low, high)
+    st.session_state.status = "playing"
+    st.session_state.history = []
     st.success("New game started.")
     st.rerun()
 
