@@ -1,14 +1,6 @@
 import random
 import streamlit as st
-
-def get_range_for_difficulty(difficulty: str):
-    if difficulty == "Easy":
-        return 1, 20
-    if difficulty == "Normal":
-        return 1, 100
-    if difficulty == "Hard":
-        return 1, 50
-    return 1, 100
+from logic_utils import get_range_for_difficulty
 
 
 def parse_guess(raw: str):
@@ -34,6 +26,7 @@ def check_guess(guess, secret):
         return "Win", "🎉 Correct!"
 
     try:
+        #FIXME: Logic 2 breaks here: The guess hint is saying the opposite of what it should. If the guess is higher than the secret, it says to go higher, and vice versa.
         if guess > secret:
             return "Too High", "📈 Go HIGHER!"
         else:
@@ -89,8 +82,12 @@ low, high = get_range_for_difficulty(difficulty)
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
-if "secret" not in st.session_state:
+if "selected_difficulty" not in st.session_state:
+    st.session_state.selected_difficulty = difficulty
+
+if "secret" not in st.session_state or st.session_state.selected_difficulty != difficulty:
     st.session_state.secret = random.randint(low, high)
+    st.session_state.selected_difficulty = difficulty
 
 if "attempts" not in st.session_state:
     st.session_state.attempts = 1
@@ -107,7 +104,7 @@ if "history" not in st.session_state:
 st.subheader("Make a guess")
 
 st.info(
-    f"Guess a number between 1 and 100. "
+    f"Guess a number between {low} and {high}. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
@@ -133,7 +130,7 @@ with col3:
 
 if new_game:
     st.session_state.attempts = 0
-    st.session_state.secret = random.randint(1, 100)
+    st.session_state.secret = random.randint(low, high)
     st.success("New game started.")
     st.rerun()
 
